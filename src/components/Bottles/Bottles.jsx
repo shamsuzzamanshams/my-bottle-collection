@@ -1,25 +1,52 @@
-import React, { use, useState } from 'react';
+import React, { use, useEffect, useState } from 'react';
 import Bottle from '../Bottle/Bottle';
 import './Bottles.css'
+import { addTostoreCart, getStoreCart } from '../../utilitis/localstorage';
 
 const Bottles = ({ bottlesPromise }) => {
-	const [cart,setCart] = useState([]);
+	const [cart, setCart] = useState([]);
 	const bottles = use(bottlesPromise);
 
-	const handelAddtoCart = (bottle) =>{
-		console.log("Bottle will be add to the cart",bottle);
-		
+	useEffect(() => {
+		const storedCartIds = getStoreCart();
+		// console.log(storedCartIds,bottles);
+
+		const storedCart = [];
+
+		for (const id of storedCartIds) {
+			console.log(id);
+			const cartBottle = bottles.find(bottle => bottle.id === id);
+			if (cartBottle) {
+				storedCart.push(cartBottle);
+			}
+
+		}
+
+		setCart(storedCart);
+
+	}, [bottles])
+
+	const handelAddtoCart = (bottle) => {
+		// console.log("Bottle will be add to the cart",bottle);
+		const newCart = [...cart, bottle];
+		setCart(newCart);
+
+		addTostoreCart(bottle.id);
+
+
+
 	}
 	// console.log(bottles);
 
 	return (
 		<div>
 			<h3>Total Bottles: {bottles.length}</h3>
+			<p>Cart: {cart.length}</p>
 			<div className='bottles-card'>
 				{
-					bottles.map(bottles => <Bottle 
+					bottles.map(bottles => <Bottle
 						key={bottles.id}
-						handelAddtoCart = {handelAddtoCart} 
+						handelAddtoCart={handelAddtoCart}
 						bottles={bottles}></Bottle>)
 				}
 			</div>
